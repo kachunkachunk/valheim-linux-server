@@ -67,10 +67,10 @@ Finally this assumes you're using a version of systemd that can log to file. Ubu
 ## Applicable Server Notes
 The dedicated server instances are running in an ESXi VM on Ubuntu Server 20.10. It's currently over-specced with 6 vCPUs, 8GB of RAM, 200GB of storage for /opt
 We for now base our server files in /opt/valheim-server:
-- The ./server directory is the content root of the application downloaded from Steam.
-- The ./config directory is the persistent data we want to preserve when running the valheim dedicated server, defined in the initialization script as arguments `-savedir "/opt/valheim-server/config"`
-- The ./scripts directory contains the service scripts but generally these can go anywhere (ensure you update the systemd service units, accordingly).
-- The ./backups directory contains world backups.
+- The `./server` directory is the content root of the application downloaded from Steam.
+- The `./config` directory is the persistent data we want to preserve when running the valheim dedicated server, defined in the initialization script as arguments `-savedir "/opt/valheim-server/config"`
+- The `./scripts` directory contains the service scripts but generally these can go anywhere (ensure you update the systemd service units, accordingly).
+- The `./backups` directory contains world backups.
 
 If/when we move to contianers, it's super simple to just map the directories above and continue. We've moved on and off containers easily and for now run "native" due to simplicity with modding. Containers are predominantly moving to directly support BepInEx and such, but I think that whole space needs a bit more time before we move back to them. For instance, I need to see how they handle game and mod/library updates, backups, signals, mappings and modding capabilities, etc.
 
