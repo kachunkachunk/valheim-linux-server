@@ -6,6 +6,8 @@
 # Does not run +validate for steamcmd. This is so an update doesn't overwrite modified files, but this may not be a problem anymore.
 # Typically the unstripped DLLs can be loaded explicitly now; the /valheim_server_Data/Managed directory and its contents are no longer overwritten.
 # Will amend this script later when I am a bit more sure, and have a better idea of how I want to handle automatic updates.
+#
+# This script is also used to install Valheim for the first time, or after deleting its server files.
 
 docker run --rm -it -v /opt/valheim-server/server:/opt/valheim-server/server steamcmd/steamcmd:latest +login anonymous +force_install_dir /opt/valheim-server/server +app_update 896660 +quit
 chown -R valheim:valheim /opt/valheim-server/server
