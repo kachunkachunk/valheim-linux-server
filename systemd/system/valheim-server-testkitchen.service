@@ -1,0 +1,17 @@
+[Unit]
+Description=Valheim Dedicated Server (Testkitchen)
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+User=valheim
+WorkingDirectory=/opt/valheim-server/server
+ExecStart=/opt/valheim-server/scripts/start-testkitchen.sh
+Restart=on-failure
+KillSignal=SIGINT
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=valheim-server-testkitchen
+
+[Install]
+WantedBy=multi-user.target
