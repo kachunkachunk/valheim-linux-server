@@ -21,7 +21,7 @@ Functional areas covered are:
 This is an interactive script that currently can:
 * Obtain the latest release assets of Valheim Plus (upon your choosing)
 * Extract/install a specified release file
-* Back up the valheim_plus.cfg file
+* Back up the `valheim_plus.cfg` file
 
 I am mulling over some additional features:
 * Download and/or re-download the Valheim dedicated server itself
@@ -73,6 +73,13 @@ We for now base our server files in /opt/valheim-server:
 - The `./backups` directory contains world backups.
 
 If/when we move to contianers, it's super simple to just map the directories above and continue. We've moved on and off containers easily and for now run "native" due to simplicity with modding. Containers are predominantly moving to directly support BepInEx and such, but I think that whole space needs a bit more time before we move back to them. For instance, I need to see how they handle game and mod/library updates, backups, signals, mappings and modding capabilities, etc.
+
+We depend on docker for steamcmd (for one, it's no longer in Ubuntu 20.10 repos, seemingly), mostly so we don't have to crap up the system with custom repos and dependencies. When run in scripts, it's also set up to be ephemeral and delete itself upon completing.
+
+We also run a webserver on docker to share a basic info/landing page and serve out specific files right from the game's server files (valheim_plus.cfg). This ensured people had access to the current exact config, as we do mod+config enforcement. Though as of Valheim Plus 0.9, configs are actually pushed to the client upon connecting. Still, best install the config during each update, in case you go in solo play mode (you'd load the default config, which is not desirable since our server uses an increased item stack limit; you'd lose everything above the default limit once you load into your solo world).
+
+Lastly, off the top of my head, dependencies for now would be satisfied with:
+`apt-get install docker.io wget curl libc6-dev unzip zip tar` (for Ubuntu - use your intuition for package management on other distros).
 
 ## Our Valheim Plus Config
 Finally, our config is shared for reference, but also as a launching point for our small community to submit change suggestions and such.
