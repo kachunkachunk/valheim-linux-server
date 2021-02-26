@@ -25,7 +25,7 @@ This is an interactive script that currently can:
 
 I am mulling over some additional features:
 * Download and/or re-download the Valheim dedicated server itself
-* Merge valheim_plus.cfg file changes upon new releases/configs being released
+* Merge `valheim_plus.cfg` file changes upon new releases/configs being released
 * Gracefully or automatically handle updates to Valheim itself and/or Valheim Plus.
 
 ### backup.sh
