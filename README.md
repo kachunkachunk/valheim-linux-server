@@ -58,6 +58,8 @@ I've included our service files, in case they are desired. Of all the suggestion
 `StandardError=syslog`  
 `SyslogIdentifier=valheim-server-testkitchen` - The service itself will tag its events accordingly. It's helpful, as you can filter for it.  
 
+The resulting logs are filtered with rsyslog rulesets. These rules remove useless debug/newline cruft and fork logging to a additional instance-specific files. Another log notes the Steam IDs that have connected and disconnected (for a session tracking effort I'm working on), and finally these arbitrary log files are rotated with a `logrotate` rule.
+
 If you don't go the syslog route (maybe your provider doesn't want that, or you're using a container and aren't shipping syslogging there, etc), then you can always log to a file:  
 `StandardOutput=file:/path/log.ext`  
 `StandardError=file:/path/log.ext`  
@@ -84,3 +86,4 @@ Lastly, off the top of my head, dependencies for now would be satisfied with:
 ## Our Valheim Plus Config
 Finally, our config is shared for reference, but also as a launching point for our small community to submit change suggestions and such.
 Admittedly I'm new to git, so it's another way of getting a feel for owning a repo and taking contributions. :P
+The server is currently set up for password-less access but enforced by whitelist.
