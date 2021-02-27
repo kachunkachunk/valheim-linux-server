@@ -85,6 +85,6 @@ Note that this will not rotate by default (you may need to set up logrotate), bu
 Finally this assumes you're using a version of systemd that can log to file. Ubuntu 17.10 might be the first of those.
 
 ## Our Valheim Plus Config
-Finally, our config is shared for reference, but also as a launching point for our small community to submit change suggestions and such.
+Finally, our config is [shared](mods/valheim_plus.cfg) for reference, but also as a launching point for our small community to submit change suggestions and such.
 Admittedly I'm new to git, so it's another way of getting a feel for owning a repo and taking contributions. :P
 The server is currently set up for password-less access but enforced by whitelist.
