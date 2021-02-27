@@ -1,13 +1,13 @@
-# Valheim Dedicated Server Scripts
+# Valheim Dedicated Server Files
 This repo contains scripts and service files that I use to run a set of private Valheim servers.  
-The game is in an early-release alpha state and sees frequent updates. Since we also depend on quality-of-life modifications like Valheim Plus, which also sees a rapid development schedule (one that must meet and often exceed Valheim's), I find myself maintaining the server in some way on a daily basis.  
+The game is in an early-release alpha state and sees frequent updates. Since we also depend on quality-of-life modifications like [Valheim Plus](https://github.com/valheimPlus/ValheimPlus), which also sees a rapid development schedule (one that must meet and often exceed Valheim's), I find myself maintaining the server in some way on a daily basis.  
   
 Some of this stuff will be unique to my setup, but over time I will rewrite scripts to be more system-agnostic.  
 I don't think I can account for the privilege constraints one might have via a hosting provider, so that will remain out of scope for my development efforts, at least for the time being. You're free to share what you can and cannot do on the issue tracker and I'll see what I can do to account for that, though.  
   
 Last but not least, I hope this helps and makes your life easier.  
 
-## Scripts
+## [Scripts](scripts)
 Functional areas covered are:
 * Downloading the Valheim dedicated server
 * Updating the dedicated server
@@ -17,7 +17,7 @@ Functional areas covered are:
 * Cleaning up logging
 * Backing up Valheim worlds
 
-### installer-updater.sh
+### [installer-updater.sh](scripts/installer-updater.sh)
 This is an interactive script that currently can:
 * Obtain the latest release assets of Valheim Plus (upon your choosing)
 * Extract/install a specified release file
@@ -28,7 +28,7 @@ I am mulling over some additional features:
 * Merge `valheim_plus.cfg` file changes upon new releases/configs being released
 * Gracefully or automatically handle updates to Valheim itself and/or Valheim Plus.
 
-### backup.sh
+### [backup.sh](scripts/backup.sh)
 This script is copied from an excellent docker container, normally executed by supervisord. For now, since this is running natively and not within an ephemeral container session, I've made some amendments to this script.
 
 It now will not backup, or rotate backups, if a Valheim server process was not detected. This is to prevent them from rotating out if the game service/servers have been off for a long time. If you were running the docker container, this wouldn't be an issue; if the container (realistically the game server) is stopped, the script isn't running on a schedule.
@@ -39,7 +39,7 @@ It currently expects environment variables or direct modification of the script 
 
 This service will undergo a total rewrite - mainly to be more of my own making, but I may go a route of making it more interactive and handle restores as well.
 
-### start-{world-name}.sh
+### [start-{world-name}.sh](scripts)
 Typically all mods for Valheim depend on unstripped Unity Engine libraries. These are included with BepInEx, a loader for such libraries.  
 The dedicated server itself is launched via shell script, which loads these libraries, then the game server itself.  
 Since the included scripts are typically overwritten with/by defaults upon updating/reinstalling BepInEx, instructions suggest copying the files and calling those, as they would be permanent.
@@ -47,7 +47,10 @@ Since the included scripts are typically overwritten with/by defaults upon updat
 For completeness, I've included our start files. You can use these as an example, if desired.  
 Also note that these are based on the previous release line of BepInEx. It has since had its own proper Linux server release, which I imagine to be even easier to use. The start scripts will likely see a rewrite soon.
 
-# System Configuration
+## [Our Valheim Plus Config](mods/valheim_plus.cfg)
+Our config is included for reference, but also as a launching point for our small community to submit change suggestions and such.
+
+## System Configuration
 The dedicated server instances are running in an ESXi VM on Ubuntu Server 20.10. It's currently over-specced with 6 vCPUs, 8GB of RAM, 200GB of storage for /opt
 We for now base our server files in /opt/valheim-server:
 - The `./server` directory is the content root of the application downloaded from Steam.
@@ -55,7 +58,7 @@ We for now base our server files in /opt/valheim-server:
 - The `./scripts` directory contains the service scripts but generally these can go anywhere (ensure you update the systemd service units, accordingly).
 - The `./backups` directory contains world backups.
 
-I'll be exploring moving back to containers once BepInEx and Valheim Plus are better handled in the prevailing/leading containers. It'd be nice to manage everything in Pterodactyl, basically.
+I'll be exploring moving back to containers once BepInEx and Valheim Plus are better handled in the prevailing/leading containers. It'd be nice to manage everything in [Pterodactyl](https://pterodactyl.io/), basically.
 
 We do depend on docker for `steamcmd` (for one, it's no longer in Ubuntu 20.10 repos, seemingly), mostly so we don't have to crap up the system with custom repos and dependencies. When run in scripts, it's also set up to be ephemeral and delete itself upon completing.
 
@@ -64,7 +67,7 @@ We also run a webserver on docker to share a basic info/landing page and serve o
 Lastly, off the top of my head, dependencies for now would be satisfied with:
 `apt-get install docker.io wget curl libc6-dev unzip zip tar` (for Ubuntu - use your intuition for package management on other distros).
 
-## Systemd Service Files
+### [Systemd Service Files](etc/systemd/system)
 I've included our service files, in case they are desired. Of all the suggestions I've seen online, I think these sould work best. But to explain how they work and what they do:  
 `User=valheim` - Service account being used to run the service (best to not run stuff as root, if you don't have to).  
 `WorkingDirectory=/opt/valheim-server/server` - Set the working directory or path of the server. This is because the BepInEx loader uses local paths (`pwd`).  
@@ -75,16 +78,11 @@ I've included our service files, in case they are desired. Of all the suggestion
 `StandardError=syslog`  
 `SyslogIdentifier=valheim-server-testkitchen` - The service itself will tag its events accordingly. It's helpful, as you can filter for it.  
 
-## Logging
-The resulting logs from the systemd units above are filtered with rsyslog rulesets. These rules remove useless debug/newline cruft and fork logging to a additional instance-specific files. Another log notes the Steam IDs that have connected and disconnected (for a session tracking effort I'm working on), and finally these arbitrary log files are rotated with a `logrotate` rule.
+### [Logging](etc/rsyslog.d)
+The resulting logs from the systemd units above are filtered with [an rsyslog ruleset](etc/rsyslog.d/2-valheim-server.conf). These rules remove useless debug/newline cruft and fork logging to a additional instance-specific files. Another log notes the Steam IDs that have connected and disconnected (for a session tracking effort I'm working on), and finally these arbitrary log files are rotated with [a logrotate rule](etc/logrotate.d/valheim).
 
 If you don't go the syslog route (maybe your provider doesn't want that, or you're using a container and aren't shipping syslogging there, etc), then you can always log to a file:  
 `StandardOutput=file:/path/log.ext`  
 `StandardError=file:/path/log.ext`  
 Note that this will not rotate by default (you may need to set up logrotate), but it's nice that you can easily direct logging to a persistent/mapped volume.
 Finally this assumes you're using a version of systemd that can log to file. Ubuntu 17.10 might be the first of those.
-
-## Our Valheim Plus Config
-Finally, our config is [shared](mods/valheim_plus.cfg) for reference, but also as a launching point for our small community to submit change suggestions and such.
-Admittedly I'm new to git, so it's another way of getting a feel for owning a repo and taking contributions. :P
-The server is currently set up for password-less access but enforced by whitelist.
