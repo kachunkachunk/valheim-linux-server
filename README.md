@@ -47,6 +47,23 @@ Since the included scripts are typically overwritten with/by defaults upon updat
 For completeness, I've included our start files. You can use these as an example, if desired.  
 Also note that these are based on the previous release line of BepInEx. It has since had its own proper Linux server release, which I imagine to be even easier to use. The start scripts will likely see a rewrite soon.
 
+# System Configuration
+The dedicated server instances are running in an ESXi VM on Ubuntu Server 20.10. It's currently over-specced with 6 vCPUs, 8GB of RAM, 200GB of storage for /opt
+We for now base our server files in /opt/valheim-server:
+- The `./server` directory is the content root of the application downloaded from Steam.
+- The `./config` directory is the persistent data we want to preserve when running the valheim dedicated server, defined in the initialization script as arguments `-savedir "/opt/valheim-server/config"`
+- The `./scripts` directory contains the service scripts but generally these can go anywhere (ensure you update the systemd service units, accordingly).
+- The `./backups` directory contains world backups.
+
+I'll be exploring moving back to containers once BepInEx and Valheim Plus are better handled in the prevailing/leading containers. It'd be nice to manage everything in Pterodactyl, basically.
+
+We do depend on docker for `steamcmd` (for one, it's no longer in Ubuntu 20.10 repos, seemingly), mostly so we don't have to crap up the system with custom repos and dependencies. When run in scripts, it's also set up to be ephemeral and delete itself upon completing.
+
+We also run a webserver on docker to share a basic info/landing page and serve out specific files right from the game's server files (`valheim_plus.cfg`). This ensured people had access to the current exact config, as we do mod+config enforcement. Though as of Valheim Plus 0.9, configs are actually pushed to the client upon connecting. Still, best install the config during each update, in case you go in solo play mode (you'd load the default config, which is not desirable since our server uses an increased item stack limit; you'd lose everything above the default limit once you load into your solo world).
+
+Lastly, off the top of my head, dependencies for now would be satisfied with:
+`apt-get install docker.io wget curl libc6-dev unzip zip tar` (for Ubuntu - use your intuition for package management on other distros).
+
 ## Systemd Service Files
 I've included our service files, in case they are desired. Of all the suggestions I've seen online, I think these sould work best. But to explain how they work and what they do:  
 `User=valheim` - Service account being used to run the service (best to not run stuff as root, if you don't have to).  
@@ -58,32 +75,14 @@ I've included our service files, in case they are desired. Of all the suggestion
 `StandardError=syslog`  
 `SyslogIdentifier=valheim-server-testkitchen` - The service itself will tag its events accordingly. It's helpful, as you can filter for it.  
 
-### Syslog
-
-The resulting logs are filtered with rsyslog rulesets. These rules remove useless debug/newline cruft and fork logging to a additional instance-specific files. Another log notes the Steam IDs that have connected and disconnected (for a session tracking effort I'm working on), and finally these arbitrary log files are rotated with a `logrotate` rule.
+## Logging
+The resulting logs from the systemd units above are filtered with rsyslog rulesets. These rules remove useless debug/newline cruft and fork logging to a additional instance-specific files. Another log notes the Steam IDs that have connected and disconnected (for a session tracking effort I'm working on), and finally these arbitrary log files are rotated with a `logrotate` rule.
 
 If you don't go the syslog route (maybe your provider doesn't want that, or you're using a container and aren't shipping syslogging there, etc), then you can always log to a file:  
 `StandardOutput=file:/path/log.ext`  
 `StandardError=file:/path/log.ext`  
 Note that this will not rotate by default (you may need to set up logrotate), but it's nice that you can easily direct logging to a persistent/mapped volume.
 Finally this assumes you're using a version of systemd that can log to file. Ubuntu 17.10 might be the first of those.
-
-## Applicable Server Notes
-The dedicated server instances are running in an ESXi VM on Ubuntu Server 20.10. It's currently over-specced with 6 vCPUs, 8GB of RAM, 200GB of storage for /opt
-We for now base our server files in /opt/valheim-server:
-- The `./server` directory is the content root of the application downloaded from Steam.
-- The `./config` directory is the persistent data we want to preserve when running the valheim dedicated server, defined in the initialization script as arguments `-savedir "/opt/valheim-server/config"`
-- The `./scripts` directory contains the service scripts but generally these can go anywhere (ensure you update the systemd service units, accordingly).
-- The `./backups` directory contains world backups.
-
-If/when we move to contianers, it's super simple to just map the directories above and continue. We've moved on and off containers easily and for now run "native" due to simplicity with modding. Containers are predominantly moving to directly support BepInEx and such, but I think that whole space needs a bit more time before we move back to them. For instance, I need to see how they handle game and mod/library updates, backups, signals, mappings and modding capabilities, etc.
-
-We depend on docker for steamcmd (for one, it's no longer in Ubuntu 20.10 repos, seemingly), mostly so we don't have to crap up the system with custom repos and dependencies. When run in scripts, it's also set up to be ephemeral and delete itself upon completing.
-
-We also run a webserver on docker to share a basic info/landing page and serve out specific files right from the game's server files (`valheim_plus.cfg`). This ensured people had access to the current exact config, as we do mod+config enforcement. Though as of Valheim Plus 0.9, configs are actually pushed to the client upon connecting. Still, best install the config during each update, in case you go in solo play mode (you'd load the default config, which is not desirable since our server uses an increased item stack limit; you'd lose everything above the default limit once you load into your solo world).
-
-Lastly, off the top of my head, dependencies for now would be satisfied with:
-`apt-get install docker.io wget curl libc6-dev unzip zip tar` (for Ubuntu - use your intuition for package management on other distros).
 
 ## Our Valheim Plus Config
 Finally, our config is shared for reference, but also as a launching point for our small community to submit change suggestions and such.
