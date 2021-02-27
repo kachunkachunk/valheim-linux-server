@@ -58,6 +58,8 @@ I've included our service files, in case they are desired. Of all the suggestion
 `StandardError=syslog`  
 `SyslogIdentifier=valheim-server-testkitchen` - The service itself will tag its events accordingly. It's helpful, as you can filter for it.  
 
+### Syslog
+
 The resulting logs are filtered with rsyslog rulesets. These rules remove useless debug/newline cruft and fork logging to a additional instance-specific files. Another log notes the Steam IDs that have connected and disconnected (for a session tracking effort I'm working on), and finally these arbitrary log files are rotated with a `logrotate` rule.
 
 If you don't go the syslog route (maybe your provider doesn't want that, or you're using a container and aren't shipping syslogging there, etc), then you can always log to a file:  
