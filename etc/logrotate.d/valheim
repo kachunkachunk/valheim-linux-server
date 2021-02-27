@@ -1,0 +1,44 @@
+/opt/valheim-server/logs/testkitchen.log
+{
+        rotate 10
+        size 1M
+        create 644
+        missingok
+        notifempty
+        compress
+        delaycompress
+        sharedscripts
+        postrotate
+                /usr/lib/rsyslog/rsyslog-rotate
+        endscript
+}
+
+/opt/valheim-server/logs/ironworld.log
+{
+        rotate 10
+        size 1M
+        create 644
+        missingok
+        notifempty
+        compress
+        delaycompress
+        sharedscripts
+        postrotate
+                /usr/lib/rsyslog/rsyslog-rotate
+        endscript
+}
+
+/opt/valheim-server/logs/steam-ids.log
+{
+        rotate 10
+        size 1M
+        create 644
+        missingok
+        notifempty
+        compress
+        delaycompress
+        sharedscripts
+        postrotate
+                /usr/lib/rsyslog/rsyslog-rotate
+        endscript
+}
